@@ -5,14 +5,17 @@ import prisma from "@/lib/prismadb"
 // const prisma = new PrismaClient();
 
 async function main() {
-    const products = await prisma.product.createMany({
-        data: data.products
+    // const products = await prisma.product.createMany({
+    //     data: data.products
+    // })
+      
+    const users = await prisma.user.createMany({
+      data: data.users
     })
-        
         
     
 
-    console.log(products);
+    console.log(users);
     
   }
   
@@ -21,3 +24,5 @@ async function main() {
     .finally(async () => {
       await prisma.$disconnect();
     });
+
+    // npx tsx ./db/seed
