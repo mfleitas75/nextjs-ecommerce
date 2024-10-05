@@ -12,3 +12,11 @@ export async function getLatestProducts() {
 
     return data;
 }
+
+export async function getProductBySlug(slug: string) {
+    return await prisma.product.findUnique({
+        where: {
+            slug
+        }
+    })
+}
