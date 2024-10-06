@@ -3,7 +3,51 @@
 import { isRedirectError } from 'next/dist/client/components/redirect'
 
 import { signIn, signOut } from '@/auth'
-import { signInFormSchema } from '../validator'
+import { signInFormSchema, signUpFormSchema } from '../validator'
+import { hashSync } from 'bcrypt-ts-edge'
+import prisma from '@/lib/prismadb'
+import { formatError } from '../utils'
+import email from 'next-auth/providers/email'
+
+// CREATE
+export async function signUp(prevState: unknown, formData: FormData) {
+  try {
+    const userSchema = signUpFormSchema.parse({
+      name: formData.get('name'),
+      email: formData.get('email'),
+      confirmPassword: formData.get('confirmPassword'),
+      password: formData.get('password'),
+    })
+    const values = {
+      name: userSchema.name,
+      email: userSchema.email,
+      password: hashSync(userSchema.password, 10),
+    }
+    console.log(values);
+    
+    await prisma.user.create({
+      data: values
+    })
+
+    await signIn('credentials', {
+      email: userSchema.email,
+      password: userSchema.password,
+    })
+    return { success: true, message: 'User created successfully' }
+  } catch (error) {
+    if (isRedirectError(error)) {
+      throw error
+    }
+    return {
+      success: false,
+      message: formatError (error).includes(
+        'duplicate key value violates unique constraint "user_email_idx"'
+      )
+        ? 'Email is already exist'
+        : formatError(error),
+    }
+  }
+}
 
 export async function signInWithCredentials(
   prevState: unknown,
