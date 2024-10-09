@@ -21,6 +21,7 @@ model User {
   email         String         @unique
   emailVerified DateTime?
   image         String?
+  cart          Cart[]
   accounts      Account[]
   sessions      Session[]
   // Optional for WebAuthn support
@@ -106,6 +107,20 @@ model Product {
   isFeatured       Boolean  @default(false)
   banner           String?
   createdAt        DateTime @default(now())                        
+}
+
+model Cart {
+  id            String          @id @default(cuid())
+  userId        String
+  sessionCartId String
+  items         Json            @default("[]")
+  itemsPrice    Decimal
+  shippingPrice Decimal
+  taxPrice      Decimal
+  totalPrice    Decimal
+  createdAt     DateTime        @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 

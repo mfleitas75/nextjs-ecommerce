@@ -1,36 +1,39 @@
-import { notFound } from 'next/navigation'
-
-import ProductImages from '@/components/shared/product/product-images'
-import ProductPrice from '@/components/shared/product/product-price'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
-import { getProductBySlug } from '@/lib/actions/product.actions'
-import { APP_NAME } from '@/lib/constants'
-import { Button } from '@/components/ui/button'
+import { notFound } from "next/navigation";
+import ProductImages from "@/components/shared/product/product-images";
+import ProductPrice from "@/components/shared/product/product-price";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { getProductBySlug } from "@/lib/actions/product.actions";
+import { APP_NAME } from "@/lib/constants";
+import AddToCart from "@/components/shared/product/add-to-cart";
+import { getMyCart } from "@/lib/actions/cart.actions";
+import { round2 } from "@/lib/utils";
 
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string }
+  params: { slug: string };
 }) {
-  const product = await getProductBySlug(params.slug)
+  const product = await getProductBySlug(params.slug);
   if (!product) {
-    return { title: 'Product not found' }
+    return { title: "Product not found" };
   }
   return {
     title: `${product.name} - ${APP_NAME}`,
     description: product.description,
-  }
+  };
 }
 
 const ProductDetails = async ({
   params: { slug },
 }: {
-  params: { slug: string }
-  searchParams: { page: string; color: string; size: string }
+  params: { slug: string };
+  searchParams: { page: string; color: string; size: string };
 }) => {
-  const product = await getProductBySlug(slug)
-  if (!product) notFound()
+  const product = await getProductBySlug(slug);
+  if (!product) notFound();
+
+  const cart = await getMyCart();
 
   return (
     <>
@@ -47,7 +50,8 @@ const ProductDetails = async ({
               </p>
               <h1 className="h3-bold">{product.name}</h1>
               <p>
-                {product.rating.toString()} of {product.numReviews.toString()} reviews
+                {product.rating.toString()} of {product.numReviews.toString()}{" "}
+                reviews
               </p>
 
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -82,9 +86,19 @@ const ProductDetails = async ({
                     <Badge variant="destructive">Unavailable</Badge>
                   )}
                 </div>
-                {product.stock !== 0 && (
+                {product.stock > 0 && (
                   <div className=" flex-center">
-                    <Button className="w-full">Add to cart</Button>
+                    <AddToCart
+                      cart={cart}
+                      item={{
+                        productId: product.id,
+                        name: product.name,
+                        slug: product.slug,
+                        price: round2(Number(product.price)),
+                        qty: 1,
+                        image: product.images![0],
+                      }}
+                    />
                   </div>
                 )}
               </CardContent>
@@ -93,7 +107,7 @@ const ProductDetails = async ({
         </div>
       </section>
     </>
-  )
-}
+  );
+};
 
-export default ProductDetails
+export default ProductDetails;
