@@ -5,17 +5,17 @@ import prisma from "@/lib/prismadb"
 // const prisma = new PrismaClient();
 
 async function main() {
-    // const products = await prisma.product.createMany({
-    //     data: data.products
-    // })
-      
-    const users = await prisma.user.createMany({
-      data: data.users
+    const products = await prisma.product.createMany({
+        data: data.products
     })
+      
+    // const users = await prisma.user.createMany({
+    //   data: data.users
+    // })
         
     
 
-    console.log(users);
+    console.log(products);
     
   }
   
