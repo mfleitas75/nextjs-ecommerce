@@ -22,6 +22,7 @@ model User {
   emailVerified DateTime?
   image         String?
   address       Json?
+  paymentMethod String?
   cart          Cart[]
   accounts      Account[]
   sessions      Session[]
